@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 panda
 numpy
 gunicorn
+python-dotenv
