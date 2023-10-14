@@ -25,7 +25,7 @@ def create_service(service_type,folder_path,service_name,github_boolean):
         source_path = os.path.join(parent_directory,"main/commons",service_type)
         gitignore_path = os.path.join(source_path,'.gitignore')
         app_py_path = os.path.join(source_path,'app.py')
-        config_py_path = os.path.join(source_path,'config.py')
+        env_path = os.path.join(source_path,'.env')
         dockerfile_path = os.path.join(source_path,'Dockerfile')
         controller_path = os.path.join(source_path,'Controller.py')
         model_path = os.path.join(source_path,'Model.py')
@@ -34,7 +34,7 @@ def create_service(service_type,folder_path,service_name,github_boolean):
 
         shutil.copy(gitignore_path,os.path.join(input_path,'app'))
         shutil.copy(app_py_path,os.path.join(input_path,'app'))
-        shutil.copy(config_py_path,os.path.join(input_path,'app'))
+        shutil.copy(env_path,os.path.join(input_path,'app'))
         shutil.copy(dockerfile_path,os.path.join(input_path,'app'))
         shutil.copy(controller_path,os.path.join(input_path,'app/main/controllers'))
         shutil.copy(model_path,os.path.join(input_path,'app/main/models'))
