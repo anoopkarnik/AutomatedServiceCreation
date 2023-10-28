@@ -31,12 +31,7 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
             app_py_path = os.path.join(source_path,'app.py')
             env_path = os.path.join(source_path,'.env')
             dockerfile_path = os.path.join(source_path,'Dockerfile')
-            with open(dockerfile_path,"r") as dockerfile_file:
-                dockerfile_content = dockerfile_file.read()
-            dockerfile_content = dockerfile_content.replace("{port}", service_port)
 
-            with open(dockerfile_path,"w") as dockerfile_file:
-                dockerfile_file.write(dockerfile_content)
 
             controller_path = os.path.join(source_path,'Controller.py')
             model_path = os.path.join(source_path,'Model.py')
@@ -52,13 +47,23 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
             shutil.copy(readme_path,os.path.join(input_path,'app'))
             shutil.copy(requirements_path,os.path.join(input_path,'app'))
 
+            new_dockerfile_path = os.path.join(input_path,'app','Dockerfile')
+
+            with open(new_dockerfile_path,"r") as dockerfile_file:
+                dockerfile_content = dockerfile_file.read()
+            dockerfile_content = dockerfile_content.replace("{port}", service_port)
+
+            with open(new_dockerfile_path,"w") as dockerfile_file:
+                dockerfile_file.write(dockerfile_content)
+
+
             os.system('source {}/python-local/bin/activate && pip install -r requirements.txt')
 
         if github_boolean == True:
             create_github_repository(input_path,service_name)
 
         if ecr_boolean == True:
-            create_ecr_repository(input_path,service_name,service_type)
+            create_ecr_repository(input_path,service_name,service_type,service_port)
 
 
 
@@ -111,11 +116,19 @@ def create_github_repository(input_path,service_name):
     response = requests.post(url,data=json.dumps(payload),headers=headers)
     print(response)
 
-def create_ecr_repository(input_path,service_name,service_type):
+def create_ecr_repository(input_path,service_name,service_type,service_port):
     parent_directory = os.getcwd()
     commons_path = os.path.join(parent_directory,"main/commons",service_type)
     create_push_ecr_path = os.path.join(commons_path,'create_push_ecr.yml')
-    shutil.copy(create_push_ecr_path,os.path.join(input_path,'app/.github/workflows'))
+    workflow_path = os.path.join(input_path,'app/.github/workflows')
+    shutil.copy(create_push_ecr_path,workflow_path)
+    with open(os.path.join(workflow_path,'create_push_ecr.yml'),"r") as workflow_file:
+        workflow_content = workflow_file.read()
+    workflow_content = workflow_content.replace("{port}", service_port)
+
+    with open(os.path.join(workflow_path,'create_push_ecr.yml'),"w") as workflow_file:
+        workflow_file.write(workflow_content)
+
     os.system("cd {}/app && git add .".format(input_path))
     os.system('cd {}/app && git commit -m "added push to ecr workflow"'.format(input_path))
     os.system('cd {}/app && git push -u origin main'.format(input_path))

@@ -29,12 +29,13 @@ def delete_service(service_type, folder_path, service_name, github_boolean, loca
         # Delete ECR repo
         ecr_client = boto3.client('ecr', region_name='ap-south-1', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
         ecr_client.delete_repository(repositoryName=service_name, force=True)
+
+    if container_boolean:
+        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{public_ipv4_dns} 'sudo docker rm --force {service_name}'")
+   
         
     if image_boolean:
         os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{public_ipv4_dns} 'sudo docker rmi {aws_account_no}.dkr.ecr.ap-south-1.amazonaws.com/{service_name}'")
     
-    if container_boolean:
-        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{public_ipv4_dns} 'sudo docker rm --force {service_name}'")
-   
-   
+
 
