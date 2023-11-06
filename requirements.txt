@@ -4,4 +4,5 @@ panda
 numpy
 gunicorn
 python-dotenv
-Crypto
+pytz
+apscheduler

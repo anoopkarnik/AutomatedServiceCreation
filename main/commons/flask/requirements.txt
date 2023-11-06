@@ -4,3 +4,5 @@ panda
 numpy
 gunicorn
 python-dotenv
+pytz
+apscheduler

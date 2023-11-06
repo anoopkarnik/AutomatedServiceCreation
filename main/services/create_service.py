@@ -22,6 +22,7 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
             os.system("cd {}/app/main && mkdir models".format(input_path))
             os.system("cd {}/app/main && mkdir services".format(input_path))
             os.system("cd {}/app && mkdir test".format(input_path))
+            os.system("cd {}/app && mkdir logs".format(input_path))
             os.system("cd {}/app && mkdir -p .github/workflows".format(input_path))
             parent_directory = os.getcwd()
             # parent_directory = os.path.dirname(current_directory)
