@@ -9,7 +9,7 @@ def delete_service(service_type, folder_path, service_name, github_boolean, loca
     github_token = os.environ.get('GITHUB_TOKEN')
     aws_access_key_id= os.environ.get('AWS_ACCESS_KEY_ID')
     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    public_ipv4_dns = os.environ.get('PUBLIC_IPV4_DNS')
+    ipv4_dns = os.environ.get('IPV4_DNS')
     ec2_pem_key_path = os.environ.get('EC2_PEM_KEY_PATH')
     aws_account_no = os.environ.get('AWS_ACCOUNT_NO')
     
@@ -31,11 +31,11 @@ def delete_service(service_type, folder_path, service_name, github_boolean, loca
         ecr_client.delete_repository(repositoryName=service_name, force=True)
 
     if container_boolean:
-        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{public_ipv4_dns} 'sudo docker rm --force {service_name}'")
+        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{ipv4_dns} 'sudo docker rm --force {service_name}'")
    
         
     if image_boolean:
-        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{public_ipv4_dns} 'sudo docker rmi {aws_account_no}.dkr.ecr.ap-south-1.amazonaws.com/{service_name}'")
+        os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{ipv4_dns} 'sudo docker rmi {aws_account_no}.dkr.ecr.ap-south-1.amazonaws.com/{service_name}'")
     
 
 

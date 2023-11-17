@@ -1,8 +1,18 @@
-flask
-Flask-SQLAlchemy
-panda
-numpy
-gunicorn
-python-dotenv
-pytz
-apscheduler
+# flask
+# Flask-SQLAlchemy
+# pandas
+# numpy
+# gunicorn
+# python-dotenv
+# pytz
+# apscheduler
+# psycopg2-binary
+# openai
+# fuzzywuzzy
+# python-Levenshtein
+# requests
+# uuid
+# pyaudio
+# pydub
+# pytest
+# boto3

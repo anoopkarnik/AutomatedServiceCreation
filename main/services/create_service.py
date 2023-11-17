@@ -77,6 +77,9 @@ def create_github_repository(input_path,service_name):
     token = os.environ.get('GITHUB_TOKEN')
     aws_access_key_id= os.environ.get('AWS_ACCESS_KEY_ID')
     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    ipv4_dns = os.environ.get('IPV4_DNS')
+    s3_bucket_name = os.environ.get('S3_BUCKET_NAME')
+    s3_key_file_name = os.environ.get('S3_KEY_FILE_NAME')
 
     token_id_url = "https://api.github.com/repos/{}/{}/actions/secrets/public-key".format(owner,service_name)
     headers = {"Authorization": "Bearer {}".format(token), "Accept": "application/vnd.github+json", "X-Github-Api-Version": "2022-11-28"}
@@ -97,7 +100,15 @@ def create_github_repository(input_path,service_name):
     response = requests.post(url,data=json.dumps(payload),headers=headers)
     print(response)
 
-    payload = {"name":"ECR_REPOSITORY","value":service_name}
+    payload = {"name":"IPV4_DNS","value":ipv4_dns}
+    response = requests.post(url,data=json.dumps(payload),headers=headers)
+    print(response)
+
+    payload = {"name":"S3_BUCKET_NAME","value":s3_bucket_name}
+    response = requests.post(url,data=json.dumps(payload),headers=headers)
+    print(response)
+
+    payload = {"name":"S3_KEY_FILE_NAME","value":s3_key_file_name}
     response = requests.post(url,data=json.dumps(payload),headers=headers)
     print(response)
 
