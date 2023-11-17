@@ -32,6 +32,7 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
             app_py_path = os.path.join(source_path,'app.py')
             env_path = os.path.join(source_path,'.env')
             dockerfile_path = os.path.join(source_path,'Dockerfile')
+            extensions_path = os.path.join(source_path,'extensions.py')
             controller_path = os.path.join(source_path,'Controller.py')
             model_path = os.path.join(source_path,'Model.py')
             readme_path = os.path.join(source_path,'README.md')
@@ -45,6 +46,7 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
             shutil.copy(model_path,os.path.join(input_path,'app/main/models'))
             shutil.copy(readme_path,os.path.join(input_path,'app'))
             shutil.copy(requirements_path,os.path.join(input_path,'app'))
+            shutil.copy(extensions_path,os.path.join(input_path,'app'))
             
             with open(os.path.join(input_path,'app/Dockerfile'),'r') as f:
                 contents = f.read()
