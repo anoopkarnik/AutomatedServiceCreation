@@ -8,12 +8,11 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
 
     if '/' in service_name:
         service_name = service_name.split('/')[-1]
-    
-    os.system("mkdir -p {}".format(input_path))
-    os.system("cd {}".format(input_path))
     print(input_path)
     if service_type =="flask":
         if local_boolean == True:
+            os.system("mkdir -p {}".format(input_path))
+            os.system("cd {}".format(input_path))
             os.system("cd {} && python3.8 -m venv python-local".format(input_path))
             os.system("cd {} && source python-local/bin/activate".format(input_path))
             os.system("cd {} && mkdir app".format(input_path))
@@ -64,6 +63,13 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
         if ecr_boolean == True:
             create_ecr_repository(input_path,service_name,service_type)
 
+    elif service_type=='react':
+        if local_boolean == True:
+            os.system("cd {} && npm create vite@latest {} -- --template react".format(folder_path,service_name))
+            os.system("cd {} && npm install -D tailwindcss postcss autoprefixer".format(input_path))
+            os.system("cd {} && npx tailwindcss init -p".format(input_path))
+            os.system("cd {}/app && mkdir -p .github/workflows".format(input_path))
+            parent_directory = os.getcwd()
 
 
 def create_github_repository(input_path,service_name):
