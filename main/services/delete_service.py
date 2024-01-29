@@ -2,7 +2,7 @@ import os
 import requests
 import boto3
 
-def delete_service(service_type, folder_path, service_name, github_boolean, local_boolean, ecr_boolean, image_boolean, container_boolean):
+def delete_service(service_type, folder_path, service_name, github_boolean, local_boolean, ecr_boolean, image_boolean, container_boolean, s3_boolean,website_name):
     input_path = os.path.join(folder_path, service_name)
 
     github_owner = os.environ.get('GITHUB_OWNER')
@@ -37,5 +37,15 @@ def delete_service(service_type, folder_path, service_name, github_boolean, loca
     if image_boolean:
         os.system(f"ssh -o StrictHostKeyChecking=no -i {ec2_pem_key_path} ubuntu@{ipv4_dns} 'sudo docker rmi {aws_account_no}.dkr.ecr.ap-south-1.amazonaws.com/{service_name}'")
     
+    if s3_boolean:
+        # Delete S3 bucket
+        s3_resource = boto3.resource('s3', region_name='ap-south-1', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+        s3_bucket = s3_resource.Bucket(website_name)
+        s3_bucket.objects.all().delete()
+        s3_bucket.delete()
+        s3_bucket = s3_resource.Bucket("www."+website_name)
+        s3_bucket.objects.all().delete()
+        s3_bucket.delete()
+
 
 
