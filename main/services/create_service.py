@@ -67,12 +67,17 @@ def create_service(service_type,folder_path,service_name,github_boolean,local_bo
 
     elif service_type=='react':
         if local_boolean == True:
+            folders = ['.github/workflows','src/apis','src/assets/css','src/assets/data','src/hooks','src/pages',
+                       'src/context','src/assets/files','src/assets/images','src/components/reusable',
+                       'src/components/shared']
+            modules = ['react-router-dom','framer-motion','react-icons']
             os.system("cd {} && npm create vite@latest {} -- --template react".format(folder_path,service_name))
             os.system("cd {} && npm install -D tailwindcss postcss autoprefixer".format(input_path))
             os.system("cd {} && npx tailwindcss init -p".format(input_path))
-            os.system("cd {} && mkdir -p .github/workflows".format(input_path))
-            os.system("cd {} && npm i react-router-dom".format(input_path))
-            os.system("cd {} && npm i framer-motion".format(input_path))
+            for folder in folders:
+                os.system("cd {} && mkdir -p {}".format(input_path,folder))
+            for module in modules:
+                os.system("cd {} && npm i {}".format(input_path,module))
             parent_directory = os.getcwd()
 
             source_path = os.path.join(parent_directory,"main/commons",service_type)
@@ -214,70 +219,73 @@ def create_s3_static_website(bucket_name, region='ap-south-1'):
                        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'), aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 
     # Create the S3 bucket
-    if region == 'us-east-1':  # 'us-east-1' has a different syntax
-        s3.create_bucket(Bucket=bucket_name)
-        s3.create_bucket(Bucket="www."+bucket_name)
-    else:
+    try:
         s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-        s3.create_bucket(Bucket="www."+bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-
-    s3.put_public_access_block(
-        Bucket=bucket_name,
-        PublicAccessBlockConfiguration={
-            'BlockPublicAcls': False,
-            'IgnorePublicAcls': False,
-            'BlockPublicPolicy': False,
-            'RestrictPublicBuckets': False
+        s3.put_public_access_block(
+            Bucket=bucket_name,
+            PublicAccessBlockConfiguration={
+                'BlockPublicAcls': False,
+                'IgnorePublicAcls': False,
+                'BlockPublicPolicy': False,
+                'RestrictPublicBuckets': False
+                }
+            )
+            # Set the website configuration
+        website_configuration = {
+            'ErrorDocument': {'Key': 'error.html'},
+            'IndexDocument': {'Suffix': 'index.html'},
         }
-    )
-    s3.put_public_access_block(
+
+        s3.put_bucket_website(Bucket=bucket_name, WebsiteConfiguration=website_configuration)
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+            }]
+        }
+        s3.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(policy))
+    except:
+        print(f"Bucket {bucket_name} already exists")
+
+    try:
+        s3.create_bucket(Bucket="www."+bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
+        s3.put_public_access_block(
         Bucket="www."+bucket_name,
         PublicAccessBlockConfiguration={
             'BlockPublicAcls': False,
             'IgnorePublicAcls': False,
             'BlockPublicPolicy': False,
             'RestrictPublicBuckets': False
-        }
-    )
-    # Set the website configuration
-    website_configuration = {
-        'ErrorDocument': {'Key': 'error.html'},
-        'IndexDocument': {'Suffix': 'index.html'},
-    }
+            }
+        )
 
-    s3.put_bucket_website(Bucket=bucket_name, WebsiteConfiguration=website_configuration)
-    website_configuration = {
-        'RedirectAllRequestsTo': {
-            'HostName': bucket_name,
-            'Protocol': 'http'
+        website_configuration = {
+            'RedirectAllRequestsTo': {
+                'HostName': bucket_name,
+                'Protocol': 'http'
+            }
         }
-    }
-    s3.put_bucket_website(Bucket="www."+bucket_name, WebsiteConfiguration=website_configuration)
-
+        s3.put_bucket_website(Bucket="www."+bucket_name, WebsiteConfiguration=website_configuration)
     # Set the bucket policy to make the content publicly readable
-    policy = {
-        "Version": "2012-10-17",
-        "Statement": [{
-            "Sid": "PublicReadGetObject",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": ["s3:GetObject"],
-            "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
-        }]
-    }
-    s3.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(policy))
-    policy = {
-        "Version": "2012-10-17",
-        "Statement": [{
-            "Sid": "PublicReadGetObject",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": ["s3:GetObject"],
-            "Resource": [f"arn:aws:s3:::www.{bucket_name}/*"]
-        }]
-    }
-    s3.put_bucket_policy(Bucket="www."+bucket_name, Policy=json.dumps(policy))
-    
+
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::www.{bucket_name}/*"]
+            }]
+        }
+        s3.put_bucket_policy(Bucket="www."+bucket_name, Policy=json.dumps(policy))
+    except:
+        print(f"Bucket www.{bucket_name} already exists")
+
     # Return the website URL
     website_url = f"http://{bucket_name}.s3-website-{region}.amazonaws.com"
     return website_url
